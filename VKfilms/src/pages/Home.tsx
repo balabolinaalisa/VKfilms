@@ -1,35 +1,38 @@
 import { use, useEffect } from "react";
 import { useMovies } from "../hooks/useMovies";
-import {CardGrid, Title, Group, View,Panel, PanelHeader} from '@vkontakte/vkui'
+import{useInfiniteScroll} from '../hooks/useInfiniteScroll';
+import {CardGrid, Title, Group, View,Panel, PanelHeader,IconButton, Spinner,Div, Text} from '@vkontakte/vkui';
+import{Icon24Filter,Icon24Like,Icon48LogoVk} from '@vkontakte/icons';
 import MovieCard from "../components/MovieCard";
 
 
-const Home = () =>{
+ const Home = () =>{
     
-    const {movies, fetchMovies, loading, error} = useMovies();
-    useEffect(()=>{
-        fetchMovies(1)
-    },[]);
-        if(error){
-            return (<div>{error}</div>)
-        }
-        if(loading && !movies.length)
-        {
-            return (<div>Загрузка...</div>)
-        }
-      /*console.log('Movies data:', movies.map(m => ({ 
-    name: m.name, 
-    rating: m.rating 
-  })));*/
+    const {movies, loadMore,hasMore } = useMovies();
+    const observerRef= useInfiniteScroll(loadMore);
     return(
         <View activePanel="card">
          <Panel id="card">
-
-            <Group>     
-                     <Title style={{
-            padding:12,
-            textAlign:'center'
-          }}>Популярные фильмы</Title>
+            <Group>   
+                <div style={{
+                    display:'flex',
+                    justifyContent:'center',
+                    alignItems:'center',
+                }}>
+                <Icon48LogoVk fill="var(--vkui--color_icon_accent)"/> 
+                <Title style={{
+                padding:12,
+                textAlign:'center',
+            }}>Фильмы</Title>
+            <IconButton label="Фильтры" >
+                <Icon24Filter fill="var(--vkui--color_icon_accent)"style={{
+                }}/>
+            </IconButton>
+            <IconButton label="Избранное">
+                <Icon24Like fill="var(--vkui--color_icon_accent)" style={{
+                }}/>
+            </IconButton>
+            </div> 
                 <CardGrid 
                      size="l"
                      style={{
@@ -45,11 +48,23 @@ const Home = () =>{
                     )
                     )}
                 </CardGrid>
-                {loading && <div>Загружаем еще...</div>}
+                <div
+                    ref={observerRef}
+                    style={{
+                        height:'50px',
+                        display: hasMore? 'block':'none'
+                    }}>
+                        <Spinner size="s"/>
+                    </div>
+                    {!hasMore && (
+                        <Div style={{textAlign:'center'}}>
+                            <Text>Фильмы закончились</Text>
+                        </Div>
+                    )}
             </Group>
         </Panel> 
        </View>
-    )
-}
+    );
+};
 
 export default Home;

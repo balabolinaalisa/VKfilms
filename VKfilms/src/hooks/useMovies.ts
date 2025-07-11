@@ -3,12 +3,10 @@ import type { Movie } from '../types/types';
 
 export const useMovies = () =>{
     const [movies, setMovies] = useState<Movie[]>([]);
-    const [loading, setloading] = useState(false);
-    const[error, setError] = useState<string | null>(null);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
 
     const fetchMovies = async (page: number=1) =>{
-        setloading(true);
-        try{
         const response = await fetch(
             `https://api.kinopoisk.dev/v1.4/movie?notNullFields=name&rating.kp=5-10&page=${page}&limit=50`,
             {
@@ -18,15 +16,20 @@ export const useMovies = () =>{
             },
         );
         const data = await response.json();
-        setMovies(prev => [...prev, ...data.docs]);
-    }
-        catch(err)
-        {
-            setError("Ошибка загрузки фильмов");
-        }
-        finally{
-            setloading(false);
-        }
+        return data.docs || [];
     };
-    return {movies, fetchMovies, loading, error}; 
+    const loadMore=async()=>{
+        if(!hasMore){
+            return;
+        }
+        const newMovies= await fetchMovies(page+1);    
+        if(newMovies.length===0){
+            setHasMore(false);
+        }
+        else{
+            setMovies(prev=>[...prev,...newMovies]);
+            setPage(prev=>prev+1);
+        }
+        };
+    return{movies,loadMore,hasMore};
 };
