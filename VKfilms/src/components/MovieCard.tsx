@@ -1,19 +1,24 @@
 import type {Movie} from "../types/types";
 import {Card,CardGrid, Title, Text, Div, Image, Spacing} from '@vkontakte/vkui';
 import {Icon48FilmStripPlay, Icon16StarAlt,Icon24PictureOutline} from '@vkontakte/icons'
+import { useRouteNavigator } from '@vkontakte/vk-mini-apps-router';
 
 interface Props{
     movie: Movie;
 }
 
-export const MovieCard = ({movie}:Props) =>{
+const MovieCard = ({movie}:Props) =>{
+    const routeNavigator = useRouteNavigator();
     return(
-            <Card mode="outline" style={{
+            <Card mode="outline" 
+            onClick={() => routeNavigator.push(`/movie/${movie.id}`)}
+            style={{
                 marginTop: 8,
                 height:'100%',
                 width:'100%',
                 display:'flex',
-                flexDirection:'column'
+                flexDirection:'column',
+                cursor: 'pointer'
             }}>
                 <Div style={{padding:0}}>
                     <div style={{

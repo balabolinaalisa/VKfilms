@@ -1,18 +1,43 @@
-import { use, useEffect } from "react";
+import { useMemo,useState,useEffect } from "react";
 import { useMovies } from "../hooks/useMovies";
 import{useInfiniteScroll} from '../hooks/useInfiniteScroll';
 import {CardGrid, Title, Group, View,Panel, PanelHeader,IconButton, Spinner,Div, Text} from '@vkontakte/vkui';
 import{Icon24Filter,Icon24Like,Icon48LogoVk} from '@vkontakte/icons';
 import MovieCard from "../components/MovieCard";
+import Filters from "../components/Filters";
 
 
  const Home = () =>{
     
-    const {movies, loadMore,hasMore } = useMovies();
-    const observerRef= useInfiniteScroll(loadMore);
+ 
+
+    const [activePanel,setActivePanel] = useState('main');
+    const [filters,setFilters]=useState <{genres?:string[];rating?:[number,number];years?:[number,number]}>({
+        genres:[],
+        rating:[5,10],
+        years:[1990, new Date().getFullYear()]
+    });
+     const { movies, loadMore, hasMore, isLoading } = useMovies(filters);  
+     const observerRef= useInfiniteScroll(loadMore);
+     useEffect(() => {
+    if (!isLoading) {
+      loadMore();
+    }
+  }, [filters, loadMore, isLoading]);
+     const allGenres=useMemo(()=>{
+        const genres=new Set<string>();
+        movies.forEach(movie=>{
+            if (Array.isArray(movie.genres)) {
+        movie.genres.forEach(g => {
+          if (g?.name) genres.add(g.name)});
+      }
+    });
+        return Array.from(genres);
+    },[movies]);
+
     return(
-        <View activePanel="card">
-         <Panel id="card">
+        <View activePanel={activePanel}>
+         <Panel id="main">
             <Group>   
                 <div style={{
                     display:'flex',
@@ -24,13 +49,11 @@ import MovieCard from "../components/MovieCard";
                 padding:12,
                 textAlign:'center',
             }}>Фильмы</Title>
-            <IconButton label="Фильтры" >
-                <Icon24Filter fill="var(--vkui--color_icon_accent)"style={{
-                }}/>
+            <IconButton aria-label="Фильтры" onClick={()=>setActivePanel('filters')} >
+                <Icon24Filter fill="var(--vkui--color_icon_accent)"/>
             </IconButton>
             <IconButton label="Избранное">
-                <Icon24Like fill="var(--vkui--color_icon_accent)" style={{
-                }}/>
+                <Icon24Like fill="var(--vkui--color_icon_accent)"/>
             </IconButton>
             </div> 
                 <CardGrid 
@@ -61,8 +84,14 @@ import MovieCard from "../components/MovieCard";
                             <Text>Фильмы закончились</Text>
                         </Div>
                     )}
-            </Group>
+            </Group> 
+
         </Panel> 
+            <Filters
+            id="filters"
+            genres={allGenres}
+            onApplyFilters={setFilters}
+            onClose={()=>setActivePanel('main')} />
        </View>
     );
 };
