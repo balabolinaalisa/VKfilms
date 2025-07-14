@@ -10,15 +10,15 @@
 - npm/Yarn
 
 ### Установка
-1. Клонируйте репозиторий:
-2. Установите зависимоти npm install:
-3. Запустите проект через npm run dev
+1. Клонируйте репозиторий;
+2. Установите зависимоти npm install;
+3. Запустите проект через npm run dev.
 
 ### Технологический стек:
-1. React 18 + TypeScript
-2.VKUI для интерфейса
-3.React Router для навигации
-4.API Kinopoisk.dev
+1. React 18 + TypeScript;
+2.VKUI для интерфейса;
+3.React Router для навигации;
+4.API Kinopoisk.dev.
 
 
   
